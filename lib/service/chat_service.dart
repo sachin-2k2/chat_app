@@ -19,7 +19,6 @@ class ChatService {
     String? replyMessage,
     String? replyMessageId,
     String? replySenderId,
-
   }) async {
     try {
       final chatRoomId = getChatRoomId(senderId, receiverId);
@@ -105,7 +104,6 @@ class ChatService {
         imageUrl: imageUrl,
         timestamp: DateTime.now(),
         isRead: false,
-       
       );
       await _firebaseStore
           .collection('chats')
@@ -181,5 +179,16 @@ class ChatService {
         .collection('messages')
         .doc(messageId)
         .delete();
+  }
+
+  Stream<int> getUnreadCount(String chatRoomId, String currentUserId) {
+    return _firebaseStore
+        .collection('chats')
+        .doc(chatRoomId)
+        .collection('messages')
+        .where('receiverId', isEqualTo: currentUserId)
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
   }
 }

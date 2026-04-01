@@ -34,7 +34,7 @@ class ChatController extends ChangeNotifier {
       message: message,
       replyMessage: replyMessage,
       replyMessageId: replyMessageId,
-      replySenderId: replySenderId
+      replySenderId: replySenderId,
     );
   }
 
@@ -144,5 +144,15 @@ class ChatController extends ChangeNotifier {
       receiverId: receiverId,
       messageId: messageId,
     );
+  }
+
+  // Get chat room id
+  String getChatRoomId(String userId1, String userId2) {
+    return _chatservice.getChatRoomId(userId1, userId2);
+  }
+
+  //Get unread count
+  Stream<int> getUnreadCount(String chatRoomId, String currentUserId) {
+    return _chatservice.getUnreadCount(chatRoomId, currentUserId);
   }
 }

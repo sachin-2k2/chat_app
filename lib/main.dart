@@ -1,4 +1,5 @@
 import 'package:chat_app/controllers/chat_controller.dart';
+import 'package:chat_app/controllers/group_controller.dart';
 
 import 'package:chat_app/views/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthController()),
         ChangeNotifierProvider(create: (_) => ChatController()),
+        ChangeNotifierProvider(create: (_) => GroupController()),
       ],
       child: MaterialApp(
         title: 'Chat App',

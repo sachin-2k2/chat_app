@@ -11,6 +11,8 @@ Widget buildChatTile(
   String currentUserId,
   ChatController chatController,
 ) {
+  final chatRoomId = chatController.getChatRoomId(currentUserId, user.usid);
+
   return GestureDetector(
     onTap: () {
       Navigator.push(
@@ -81,26 +83,32 @@ Widget buildChatTile(
 
           const SizedBox(width: 10),
 
-          // Name and last message
+          // Name, last message and unread count
           Expanded(
             child: StreamBuilder<Map<String, dynamic>>(
-              stream:
-                  chatController.getLastMessage(currentUserId, user.usid),
-              builder: (context, snapshot) {
+              stream: chatController.getLastMessage(
+                  currentUserId, user.usid),
+              builder: (context, lastMsgSnapshot) {
                 String lastMessage = 'Tap to start chatting';
                 String time = '';
-                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                  lastMessage = snapshot.data!['lastMessage'] ?? '';
-                  final timestamp = snapshot.data!['lastMessageTime'];
+
+                if (lastMsgSnapshot.hasData &&
+                    lastMsgSnapshot.data!.isNotEmpty) {
+                  lastMessage =
+                      lastMsgSnapshot.data!['lastMessage'] ?? '';
+                  final timestamp =
+                      lastMsgSnapshot.data!['lastMessageTime'];
                   if (timestamp != null) {
                     final dt = (timestamp).toDate();
                     time =
                         '${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
                   }
                 }
+
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Name and last message
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,14 +133,59 @@ Widget buildChatTile(
                         ],
                       ),
                     ),
-                    if (time.isNotEmpty)
-                      Text(
-                        time,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.grey,
+
+                    // Time and unread count
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // Time
+                        if (time.isNotEmpty)
+                          Text(
+                            time,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.grey,
+                            ),
+                          ),
+
+                        const SizedBox(height: 4),
+
+                        // Unread count ✅
+                        StreamBuilder<int>(
+                          stream: chatController.getUnreadCount(
+                              chatRoomId, currentUserId),
+                          builder: (context, unreadSnapshot) {
+                            final unreadCount =
+                                unreadSnapshot.data ?? 0;
+                            if (unreadCount == 0) {
+                              return const SizedBox();
+                            }
+                            return Container(
+                               width: 20,
+                              height: 20,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4),
+                              decoration: const BoxDecoration(
+                                color: AppColors.Primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  unreadCount > 99
+                                      ? '99+'
+                                      : unreadCount.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
+                      ],
+                    ),
                   ],
                 );
               },
